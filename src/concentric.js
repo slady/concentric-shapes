@@ -83,7 +83,7 @@ concentric = {
       // draw a circle
       ctx.beginPath();
       ctx.arc(x, y, 5, 0, 2 * Math.PI);
-      ctx.stroke();
+      ctx.fill();
     }
     ctx.translate(-radius, -radius);
   }
