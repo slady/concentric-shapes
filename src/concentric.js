@@ -2,6 +2,7 @@
  * Concentric shapes, the web page animation.
  * Copyright (c) 2017 Petr Sladek (slady)
  * License: CC BY-NC-SA
+ * Version: 1.1
  * http://slady.net/
  * http://petr.sladek.name/
  */
@@ -20,17 +21,20 @@ concentric = {
   // concentric constants
   count: 13,
   size: 100,
-  slowdown: 4,
+  slowdown: .25,
   // concentric variables
   shapes: [],
   startTime: 0,
   // the concentric init method
   run: function() {
+    this.halfSize = this.size / 2;
+    this.sizeFraction = 1.0 / this.size;
     // init variables in a loop
     for (var s = 3; s <= this.count; s++) {
-      this.shapes[s] = { edges: [] };
+      var sp = this.count + 2 - s;
+      this.shapes[s] = { edges: [], speed: sp };
       var a = Math.PI / s;
-      var r = this.size / 2 /  Math.sin(a);
+      var r = this.halfSize /  Math.sin(a);
       var p = -a;
       var b = pos(r,p);
       a *= 2;
@@ -49,7 +53,7 @@ concentric = {
   // the concentric main method, started every 30 milliseconds
   actualMove: function() {
     // get the actual time
-    var t = Math.round((new Date().getTime() - this.startTime) / this.slowdown);
+    var t = Math.round((new Date().getTime() - this.startTime) * this.slowdown);
     // prepare context
     var c = document.getElementById("myCanvas");
     var ctx = c.getContext("2d");
@@ -61,6 +65,7 @@ concentric = {
     // draw the positions in a loop
     for (var s = 3; s <= this.count; s++) {
       var sh = this.shapes[s];
+      // draw a shape
       ctx.beginPath();
       for (var i = 0; i < s; i++) {
 	var e = sh.edges[i];
@@ -68,11 +73,15 @@ concentric = {
 	ctx.lineTo(e.e.x, e.e.y);
       }
       ctx.stroke();
-      var v = (t % this.size) / this.size;
-      var w = Math.floor(t / this.size) % sh.edges.length;
-      var f = sh.edges[w];
-      var x = interp(f.b.x, f.e.x, v);
-      var y = interp(f.b.y, f.e.y, v);
+      // calculate the circle position
+      var q = this.halfSize + t;
+      // * sh.speed / sh.edges.length
+      var v = (q % this.size) * this.sizeFraction;
+      var w = Math.floor(q * this.sizeFraction) % sh.edges.length;
+      var e = sh.edges[w];
+      var x = interp(e.b.x, e.e.x, v);
+      var y = interp(e.b.y, e.e.y, v);
+      // draw a circle
       ctx.beginPath();
       ctx.arc(x, y, 5, 0, 2*Math.PI);
       ctx.stroke();
