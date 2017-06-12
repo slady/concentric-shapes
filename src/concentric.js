@@ -21,7 +21,7 @@ concentric = {
   // concentric constants
   count: 13,
   size: 100,
-  slowdown: .25,
+  speed: 0.005,
   // concentric variables
   shapes: [],
   startTime: 0,
@@ -31,7 +31,7 @@ concentric = {
     this.sizeFraction = 1.0 / this.size;
     // init variables in a loop
     for (var s = 3; s <= this.count; s++) {
-      var sp = this.count + 2 - s;
+      var sp = (this.count + 2 - s) * s * this.speed;
       this.shapes[s] = { edges: [], speed: sp };
       var a = Math.PI / s;
       var r = this.halfSize /  Math.sin(a);
@@ -52,16 +52,16 @@ concentric = {
   },
   // the concentric main method, started every 30 milliseconds
   actualMove: function() {
-    // get the actual time
-    var t = Math.round((new Date().getTime() - this.startTime) * this.slowdown);
     // prepare context
     var c = document.getElementById("myCanvas");
     var ctx = c.getContext("2d");
     var radius = c.height / 2;
     ctx.clearRect(0, 0, c.width, c.height);
+    ctx.translate(radius, radius);
+    // get the actual time
+    var t = new Date().getTime() - this.startTime;
     //ctx.font = "30px Arial";
     //ctx.fillText("time: " + t, 10, 50);
-    ctx.translate(radius, radius);
     // draw the positions in a loop
     for (var s = 3; s <= this.count; s++) {
       var sh = this.shapes[s];
@@ -74,8 +74,7 @@ concentric = {
       }
       ctx.stroke();
       // calculate the circle position
-      var q = this.halfSize + t;
-      // * sh.speed / sh.edges.length
+      var q = Math.round(this.halfSize + t * sh.speed);
       var v = (q % this.size) * this.sizeFraction;
       var w = Math.floor(q * this.sizeFraction) % sh.edges.length;
       var e = sh.edges[w];
@@ -83,7 +82,7 @@ concentric = {
       var y = interp(e.b.y, e.e.y, v);
       // draw a circle
       ctx.beginPath();
-      ctx.arc(x, y, 5, 0, 2*Math.PI);
+      ctx.arc(x, y, 5, 0, 2 * Math.PI);
       ctx.stroke();
     }
     ctx.translate(-radius, -radius);
