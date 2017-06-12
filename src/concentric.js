@@ -15,6 +15,11 @@ function pos(r,a){
 function interp(v0, v1, t) {
   return v0 + t * (v1 - v0);
 }
+// shape color
+function col(i) {
+  if (i < 0 || i > 6) return "0";
+  return "48CFC84".substring(i);
+}
 
 // the concentric object
 concentric = {
@@ -65,12 +70,13 @@ concentric = {
     // draw the positions in a loop
     for (var s = 3; s <= this.count; s++) {
       var sh = this.shapes[s];
+      ctx.strokeStyle = "#" + col(s) + col(s - 4) + col(s - 8);
       // draw a shape
       ctx.beginPath();
       for (var i = 0; i < s; i++) {
-	var e = sh.edges[i];
-	ctx.moveTo(e.b.x, e.b.y);
-	ctx.lineTo(e.e.x, e.e.y);
+        var e = sh.edges[i];
+        ctx.moveTo(e.b.x, e.b.y);
+        ctx.lineTo(e.e.x, e.e.y);
       }
       ctx.stroke();
       // calculate the circle position
